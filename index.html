@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Bonna · Mayıs 2026 Mailing Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#f6f3ee;
+    --panel:#ffffff;
+    --line:#e5e0d6;
+    --line-soft:#eee9df;
+    --text:#1d2424;
+    --muted:#6b716e;
+    --soft:#8a8f8c;
+    --accent:#0e4d4a;
+    --accent-2:#b08a4a;
+    --tag-bg:#f3efe6;
+    --ink:#13241f;
+    --shadow:0 2px 4px rgba(20,28,28,.05), 0 12px 32px rgba(20,28,28,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;line-height:1.55;letter-spacing:-.005em;-webkit-font-smoothing:antialiased}
+  .serif{font-family:"Cormorant Garamond","Times New Roman",Georgia,serif;letter-spacing:-.01em}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1380px;margin:0 auto;padding:38px 28px 80px}
+
+  /* Top */
+  .top{display:flex;flex-wrap:wrap;gap:24px;justify-content:space-between;align-items:flex-end;margin-bottom:30px}
+  .brand{display:flex;align-items:center;gap:16px}
+  .logo{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#1d6e6b);display:flex;align-items:center;justify-content:center;color:#f6f3ee;font-weight:700;font-size:20px;letter-spacing:.5px;box-shadow:0 6px 14px rgba(14,77,74,.18)}
+  h1{margin:0;font-size:30px;font-weight:600;color:var(--ink)}
+  h1 .serif{font-size:32px;font-weight:500}
+  .subtitle{margin:6px 0 0;color:var(--muted);font-size:14.5px}
+  .meta-pills{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:7px 13px;border-radius:999px;font-size:12.5px;box-shadow:0 1px 2px rgba(0,0,0,.02)}
+  .pill strong{color:var(--ink)}
+
+  /* KPIs */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:24px 0 24px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow)}
+  .kpi .lbl{color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+  .kpi .val{font-size:24px;margin-top:6px;font-weight:600;color:var(--ink);font-family:"Cormorant Garamond",serif;letter-spacing:-.01em}
+  .kpi .val.num{font-size:30px;color:var(--accent)}
+  @media (max-width:980px){.kpis{grid-template-columns:repeat(2,1fr)}}
+
+  /* Audience legend */
+  .aud-legend{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:24px;box-shadow:var(--shadow)}
+  .aud-legend h3{margin:0 0 8px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-weight:600}
+  .aud-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:13px;color:var(--text)}
+  .aud-tag{display:inline-flex;align-items:center;gap:6px;background:var(--tag-bg);border:1px solid var(--line);padding:5px 11px;border-radius:8px;font-size:12px;color:var(--text);font-weight:500;white-space:nowrap}
+  .aud-tag .dot{width:8px;height:8px;border-radius:50%}
+  .aud-tag.tb .dot{background:var(--accent)}
+  .aud-tag.tw .dot{background:#7a8a4f}
+  .aud-tag.gb .dot{background:#2f6a8a}
+  .aud-tag.gw .dot{background:#c6663b}
+
+  /* Cards grid */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+  @media (max-width:1100px){.grid{grid-template-columns:1fr}}
+
+  .card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:0;box-shadow:var(--shadow);overflow:hidden;transition:transform .14s ease,box-shadow .14s ease}
+  .card:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(20,28,28,.08),0 20px 40px rgba(20,28,28,.08)}
+
+  .card .stripe{height:6px;width:100%;background:linear-gradient(90deg,#0e4d4a,#b08a4a)}
+  .card .inner{padding:24px 26px 24px}
+
+  .card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px}
+  .head-left .num{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-weight:600}
+  .head-left .num .nb{color:var(--accent)}
+  .audience{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+
+  .kicker{display:inline-block;font-size:11.5px;color:var(--accent);text-transform:uppercase;letter-spacing:.16em;font-weight:700;padding:4px 10px;border:1px solid var(--accent);border-radius:6px;margin:8px 0 10px}
+  .kicker.kg{color:#2f6a8a;border-color:#2f6a8a}
+  h2.cardtitle{margin:4px 0 6px;font-size:23px;line-height:1.25;color:var(--ink);font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;letter-spacing:-.005em}
+  .pre{color:var(--muted);font-size:13.5px;margin:6px 0 14px;font-style:italic}
+
+  /* Lang tabs */
+  .tabs{display:flex;gap:6px;margin-bottom:12px;border-bottom:1px solid var(--line-soft);padding-bottom:8px}
+  .tab{background:transparent;border:1px solid transparent;border-radius:8px;padding:6px 12px;font-size:12.5px;color:var(--muted);cursor:pointer;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+  .tab.active{color:var(--accent);background:var(--tag-bg);border-color:var(--line)}
+  .lang-pane{display:none}
+  .lang-pane.active{display:block}
+
+  .sec{margin-top:12px}
+  .sec h5{margin:0 0 5px;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;font-weight:700}
+  .body{font-size:14px;color:var(--text)}
+  .subject-line{font-size:16px;font-weight:600;color:var(--ink);line-height:1.35}
+  .preh{font-size:12.5px;color:var(--muted);margin-top:3px;font-style:italic}
+
+  .body ul{margin:8px 0 0;padding-left:18px}
+  .body ul li{margin:3px 0;font-size:13.5px}
+
+  .col-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .tag{font-size:11.5px;background:var(--tag-bg);border:1px solid var(--line);padding:4px 10px;border-radius:8px;color:var(--text)}
+
+  .cta{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fbf8f1;border-radius:10px;padding:9px 16px;font-weight:600;font-size:13px;margin-top:14px;text-decoration:none}
+  .cta:hover{background:#1d6e6b;text-decoration:none}
+
+  .palette{display:flex;gap:6px;margin-top:8px}
+  .swatch{width:18px;height:18px;border-radius:5px;border:1px solid rgba(0,0,0,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.4)}
+
+  .divider{height:1px;background:var(--line-soft);margin:14px 0}
+
+  /* Notes */
+  .notes-block{margin-top:14px;background:var(--tag-bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .notes-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .notes-head h5{margin:0;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;font-weight:700;display:flex;align-items:center;gap:6px}
+  .save-indicator{font-size:11px;color:var(--accent);opacity:0;transition:opacity .25s ease;font-weight:600}
+  .save-indicator.show{opacity:1}
+  .notes-area{width:100%;min-height:70px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:13px;color:var(--text);resize:vertical;line-height:1.5;outline:none;transition:border-color .15s ease}
+  .notes-area:focus{border-color:var(--accent)}
+  .notes-area::placeholder{color:#b5b8b3}
+
+  /* Action bar (top right) */
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{background:var(--panel);border:1px solid var(--line);color:var(--text);padding:7px 12px;border-radius:8px;font-size:12.5px;cursor:pointer;font-weight:600}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn.primary{background:var(--accent);color:#fbf8f1;border-color:var(--accent)}
+  .btn.primary:hover{background:#1d6e6b;color:#fbf8f1}
+
+  footer{margin-top:40px;color:var(--muted);font-size:12.5px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Top -->
+  <div class="top">
+    <div class="brand">
+      <div class="logo">Bo</div>
+      <div>
+        <h1><span class="serif">Bonna ·</span> Mayıs 2026 Mailing Planı</h1>
+        <p class="subtitle">11 mailing · TR &amp; EN · 4 hedef veri segmenti · HoReCa odaklı</p>
+      </div>
+    </div>
+    <div class="meta-pills">
+      <span class="pill">Hazırlayan: <strong>AfterFAANG</strong></span>
+      <span class="pill">Brief: <strong>Bazalith · FUSIONtech · Liora</strong></span>
+      <div class="actions" style="margin-left:8px">
+        <button class="btn" id="exportNotes">Notları indir</button>
+        <button class="btn" id="importNotesBtn">Notları içe aktar</button>
+        <input type="file" id="importNotesFile" accept="application/json" style="display:none">
+        <button class="btn" id="clearNotes" title="Tüm yorumları sil">Temizle</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi"><div class="lbl">Toplam mailing</div><div class="val num">11</div></div>
+    <div class="kpi"><div class="lbl">Diller</div><div class="val">TR &amp; EN</div></div>
+    <div class="kpi"><div class="lbl">Hedef veri segmenti</div><div class="val">4 segment</div></div>
+    <div class="kpi"><div class="lbl">Kapsanan koleksiyon</div><div class="val">25+</div></div>
+  </div>
+
+  <!-- Audience legend -->
+  <div class="aud-legend">
+    <h3>Hedef veri segmentleri</h3>
+    <div class="aud-row">
+      <span class="aud-tag tb"><span class="dot"></span>TR · Bayi</span>
+      <span class="aud-tag tw"><span class="dot"></span>TR · Web</span>
+      <span class="aud-tag gb"><span class="dot"></span>Global · Bayi</span>
+      <span class="aud-tag gw"><span class="dot"></span>Global · Web</span>
+      <span style="color:var(--muted);font-size:12.5px;margin-left:auto">Her mailing'in kart başlığında hedef veri etiketleri görünür.</span>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div class="grid">
+
+    <!-- 01 · YAZ KAMPANYASI -->
+    <article class="card" id="m01">
+      <div class="stripe"></div>
+      <div class="inner">
+        <div class="card-head">
+          <div class="head-left">
+            <div class="num">Mailing <span class="nb">01 / 11</span></div>
+          </div>
+          <div class="audience">
+            <span class="aud-tag tw"><span class="dot"></span>TR · Web</span>
+          </div>
+        </div>
+
+        <span class="kicker">Yaz Kampanyası 2026</span>
+        <h2 class="cardtitle">Porselen ve ÇKB ürünlerinde %35 indirim — seçili koleksiyonlarda</h2>
+        <div class="pre">Kurumsal satış kampanyası · 30 Haziran’a kadar geçerli.</div>
+
+        <div class="tabs"><button class="tab active" data-lang="tr">TR</button><button class="tab" data-lang="en">EN</button></div>
+
+        <div class="lang-pane active" data-lang="tr">
+          <div class="sec"><h5>Konu satırı</h5><div class="subject-line">Bonna Yaz Kampanyası: Seçili koleksiyonlarda %35 indirim</div><div class="preh">Preheader · Porselen ve ÇKB ürünlerinde · 30 Haziran’a kadar geçerli.</div></div>
+          <div class="sec"><h5>Mail metni</h5>
+            <div class="body">Bonna’nın yaz dönemine özel kurumsal satış kampanyası başladı. Seçili porselen ve ÇKB koleksiyon ürünlerinde <strong>%35 indirim</strong> — yaz menüsüne hazırlık döneminde mutfak ve sunum ekipmanlarınızı avantajlı koşullarla planlamanın zamanı.
+              <ul>
+                <li><strong>%35 indirim</strong> · porselen ve ÇKB ürün gruplarında</li>
+                <li>Yalnızca koleksiyonların <strong>seçili ürünlerinde</strong> geçerlidir</li>
+                <li>Son gün: <strong>30 Haziran 2026</strong></li>
+                <li>Yalnızca kurumsal satış · perakende satış bulunmamaktadır</li>
+              </ul>
+              Ürün listesi ve sipariş detayları için <strong>Bonna satış noktalarıyla iletişime geçin</strong>.
+            </div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">Yaz kampanyamızı keşfedin →</a></div>
+        </div>
+
+        <div class="lang-pane" data-lang="en">
+          <div class="sec"><h5>Subject line</h5><div class="subject-line">Bonna Summer Campaign: 35% off on selected collections</div><div class="preh">Preheader · Porcelain and stoneware ranges · valid through 30 June.</div></div>
+          <div class="sec"><h5>Body</h5>
+            <div class="body">Bonna’s summer B2B campaign is live. <strong>35% off</strong> on selected porcelain and stoneware (ÇKB) collection items — the right moment for chefs and operations teams to plan summer-menu mise-en-place at preferred terms.
+              <ul>
+                <li><strong>35% discount</strong> · porcelain and stoneware ranges</li>
+                <li>Valid only on <strong>selected items</strong> of the collections</li>
+                <li>Campaign deadline: <strong>30 June 2026</strong></li>
+                <li>Business-to-business only · no retail sales</li>
+              </ul>
+              For the full product list and order details, please <strong>contact your Bonna sales point</strong>.
+            </div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">Discover the Summer Campaign →</a></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="sec"><h5>Kampanya kapsamı</h5>
+          <div class="col-row"><span class="tag">Porselen</span><span class="tag">ÇKB</span><span class="tag">Seçili koleksiyon ürünleri</span><span class="tag">%35 indirim</span><span class="tag">30 Haziran son gün</span></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="notes-block">
+          <div class="notes-head">
+            <h5>● Yorumlar &amp; notlar</h5>
+            <span class="save-indicator" data-for="m01">Kaydedildi ✓</span>
+          </div>
+          <textarea class="notes-area" data-card="m01" placeholder="Bu mailing için yorumlarınızı, revize notlarını, onay durumunu buraya yazın. Otomatik kaydedilir."></textarea>
+        </div>
+      </div>
+    </article>
+
+    <!-- 02 · BONNA'YI TERCİH EDENLER -->
+    <article class="card" id="m02">
+      <div class="stripe"></div>
+      <div class="inner">
+        <div class="card-head">
+          <div class="head-left">
+            <div class="num">Mailing <span class="nb">02 / 11</span></div>
+          </div>
+          <div class="audience">
+            <span class="aud-tag tb"><span class="dot"></span>TR · Bayi</span>
+            <span class="aud-tag tw"><span class="dot"></span>TR · Web</span>
+            <span style="font-size:11px;color:var(--muted);align-self:center;margin-left:6px">Yalnızca TR data</span>
+          </div>
+        </div>
+
+        <span class="kicker">Bonna’yı Tercih Edenler · 01</span>
+        <h2 class="cardtitle">Balıkçı İsmet · Bitez</h2>
+        <div class="pre">Bonna’yı Tercih Edenler serisinin ilk vitrini — her ay yeni bir bölüm.</div>
+
+        <div class="tabs"><button class="tab active" data-lang="tr">TR</button><button class="tab" data-lang="en" disabled style="opacity:.45;cursor:not-allowed">EN · n/a</button></div>
+
+        <div class="lang-pane active" data-lang="tr">
+          <div class="sec"><h5>Konu satırı</h5><div class="subject-line">Bonna’yı Tercih Edenler · Balıkçı İsmet · Bitez</div><div class="preh">Preheader · Halo · Hygge · Solida — Akdeniz kıyısında bir Bonna masası.</div></div>
+          <div class="sec"><h5>Mail metni</h5>
+            <div class="body">Bitez’in efsane balıkçılarından <strong>Balıkçı İsmet</strong>, mükemmel sunum için Bonna’yı tercih ediyor. Can Yalman tasarımı <strong>Halo</strong> rölyef detaylarıyla ışık oyunları yaratırken, <strong>Hygge</strong> sıcak tonuyla sunumu bütünlüyor, <strong>Solida</strong> meze sunumlarına hareket katıyor. Akdeniz kıyısındaki bir masada, Bonna’nın Akdeniz ruhunu yansıtan koleksiyonları bir arada. <em>Bonna’yı Tercih Edenler</em> serimizin ilk bölümü; her ay yeni bir restoran, yeni bir vitrin.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">Balıkçı İsmet vitrinini gör →</a></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="sec"><h5>Öne çıkan koleksiyonlar</h5>
+          <div class="col-row"><span class="tag">Halo (Can Yalman)</span><span class="tag">Hygge</span><span class="tag">Solida</span><span class="tag">Bakır Solida</span></div>
+          <div class="palette"><span class="swatch" style="background:#1f5e8c"></span><span class="swatch" style="background:#3a8fc7"></span><span class="swatch" style="background:#a96544"></span><span class="swatch" style="background:#e8e2d4"></span></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="notes-block">
+          <div class="notes-head">
+            <h5>● Yorumlar &amp; notlar</h5>
+            <span class="save-indicator" data-for="m02">Kaydedildi ✓</span>
+          </div>
+          <textarea class="notes-area" data-card="m02" placeholder="Bu mailing için yorumlarınızı, revize notlarını, onay durumunu buraya yazın. Otomatik kaydedilir."></textarea>
+        </div>
+      </div>
+    </article>
+
+    <!-- 03 · SÜRDÜRÜLEBİLİRLİK -->
+    <article class="card" id="m03">
+      <div class="stripe"></div>
+      <div class="inner">
+        <div class="card-head">
+          <div class="head-left">
+            <div class="num">Mailing <span class="nb">03 / 11</span></div>
+          </div>
+          <div class="audience">
+            <span class="aud-tag tb"><span class="dot"></span>TR · Bayi</span>
+            <span class="aud-tag tw"><span class="dot"></span>TR · Web</span>
+            <span class="aud-tag gb"><span class="dot"></span>Global · Bayi</span>
+            <span class="aud-tag gw"><span class="dot"></span>Global · Web</span>
+          </div>
+        </div>
+
+        <span class="kicker">Sürdürülebilirlik · EPD</span>
+        <h2 class="cardtitle">Sofra ve mutfak ekipmanlarında dünyanın ilk EPD sertifikalı üreticisi</h2>
+        <div class="pre">Dayanıklılık ve sürdürülebilirlik tek tasarım kararında buluşuyor.</div>
+
+        <div class="tabs"><button class="tab active" data-lang="tr">TR</button><button class="tab" data-lang="en">EN</button></div>
+
+        <div class="lang-pane active" data-lang="tr">
+          <div class="sec"><h5>Konu satırı</h5><div class="subject-line">Dünyada bir ilk EPD sertifikası: dayanıklı bir tabak, dayanıklı bir mutfak</div><div class="preh">Preheader · %99,9 geri dönüşüm, sıfır atık üretim, uzun ömürlü vitrifiye gövde.</div></div>
+          <div class="sec"><h5>Mail metni</h5>
+            <div class="body">Bonna, sofra ve mutfak ekipmanları kategorisinde <strong>dünyanın ilk Çevresel Ürün Beyanı (EPD) sertifikalı</strong> üreticisi. %99,9 geri dönüşüm oranıyla çalışan sıfır atık tesisinde, uzun ömürlü vitrifiye gövde, tek pişirim teknolojisi ve reaktif sır tek bir üretim hattında birleşiyor. Mix &amp; Match uyumu mevcut koleksiyonun atılmadan yaşamasını sağlıyor. Sonuç: HoReCa için daha düşük yenileme maliyeti, daha küçük karbon ayak izi.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">EPD sertifikalı koleksiyonu görüntüle →</a></div>
+        </div>
+
+        <div class="lang-pane" data-lang="en">
+          <div class="sec"><h5>Subject line</h5><div class="subject-line">The world's first EPD-certified tabletop &amp; kitchenware maker</div><div class="preh">Preheader · 99.9% recycling rate, zero-waste production, long-life vitrified body.</div></div>
+          <div class="sec"><h5>Body</h5>
+            <div class="body">Bonna is the world's first manufacturer in the tabletop &amp; kitchenware category to hold an <strong>Environmental Product Declaration (EPD)</strong>. A 99.9% recycling rate, a zero-waste facility, long-life vitrified bodies, single-firing technology and reactive glaze come together on one production line. Mix &amp; Match compatibility lets existing collections stay in service instead of being replaced. The outcome for HoReCa: lower replacement cost, smaller carbon footprint.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">View the EPD-certified range →</a></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="sec"><h5>Öne çıkan koleksiyonlar</h5>
+          <div class="col-row"><span class="tag">Premium Vitrified</span><span class="tag">Bazalith</span><span class="tag">Liora</span><span class="tag">Tone</span><span class="tag">Core</span></div>
+          <div class="palette"><span class="swatch" style="background:#5b6c5a"></span><span class="swatch" style="background:#8a9986"></span><span class="swatch" style="background:#c7c2a8"></span><span class="swatch" style="background:#3b4a3f"></span></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="notes-block">
+          <div class="notes-head">
+            <h5>● Yorumlar &amp; notlar</h5>
+            <span class="save-indicator" data-for="m03">Kaydedildi ✓</span>
+          </div>
+          <textarea class="notes-area" data-card="m03" placeholder="Bu mailing için yorumlarınızı, revize notlarını, onay durumunu buraya yazın. Otomatik kaydedilir."></textarea>
+        </div>
+      </div>
+    </article>
+
+    <!-- 04 · AKDENİZ ESİNTİSİ -->
+    <article class="card" id="m04">
+      <div class="stripe"></div>
+      <div class="inner">
+        <div class="card-head">
+          <div class="head-left">
+            <div class="num">Mailing <span class="nb">04 / 11</span></div>
+          </div>
+          <div class="audience">
+            <span class="aud-tag tb"><span class="dot"></span>TR · Bayi</span>
+            <span class="aud-tag tw"><span class="dot"></span>TR · Web</span>
+            <span class="aud-tag gb"><span class="dot"></span>Global · Bayi</span>
+            <span class="aud-tag gw"><span class="dot"></span>Global · Web</span>
+          </div>
+        </div>
+
+        <span class="kicker">Akdeniz Esintisi · Yaz Menüsü</span>
+        <h2 class="cardtitle">Ege &amp; Akdeniz esintili sunum koleksiyonu — yaz menüsüne hazır</h2>
+        <div class="pre">Marin tonlar, zeytin yeşili ve kıyı dokuları tek sahnede.</div>
+
+        <div class="tabs"><button class="tab active" data-lang="tr">TR</button><button class="tab" data-lang="en">EN</button></div>
+
+        <div class="lang-pane active" data-lang="tr">
+          <div class="sec"><h5>Konu satırı</h5><div class="subject-line">Yaz menüsünün sahnesi: Akdeniz esintili sunum koleksiyonu</div><div class="preh">Preheader · Aquelis · Kymen · Lavis Blue · Halo Ocean · Sapphire bir arada.</div></div>
+          <div class="sec"><h5>Mail metni</h5>
+            <div class="body">Yaz menüsünün açılışına haftalar kala, Bonna’nın Akdeniz konseptli sunum koleksiyonu HoReCa’nın yoğun servis ritmine hazır. Aquelis ve Kymen’in marin tonları, Lavis Blue’nun derin denizi, Halo Ocean ve oval kayık formlar, Sapphire’in dramatik mavisi tek bir kıyı sahnesinde buluşuyor. Casual fine dining, otel breakfast ve beach club menüleri için yaz boyu güçlü bir sunum dili.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">Yaz sahnesini incele →</a></div>
+        </div>
+
+        <div class="lang-pane" data-lang="en">
+          <div class="sec"><h5>Subject line</h5><div class="subject-line">The summer-menu scene: an Aegean &amp; Mediterranean-inspired range</div><div class="preh">Preheader · Aquelis · Kymen · Lavis Blue · Halo Ocean · Sapphire together.</div></div>
+          <div class="sec"><h5>Body</h5>
+            <div class="body">Weeks before summer menus open, Bonna's Mediterranean-inspired range is ready for high-volume HoReCa service. The marine tones of Aquelis and Kymen, the deep blue of Lavis Blue, Halo Ocean and oval boat plates, and the dramatic blues of Sapphire form one coastal scene — built for casual fine dining, hotel breakfast and beach club service throughout the season.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">Explore the summer scene →</a></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="sec"><h5>Öne çıkan koleksiyonlar</h5>
+          <div class="col-row"><span class="tag">Aquelis</span><span class="tag">Kymen</span><span class="tag">Lavis Blue</span><span class="tag">Halo Ocean</span><span class="tag">Sapphire</span><span class="tag">Gaia</span></div>
+          <div class="palette"><span class="swatch" style="background:#2c5468"></span><span class="swatch" style="background:#4f7a8b"></span><span class="swatch" style="background:#a4c4c6"></span><span class="swatch" style="background:#bdc88a"></span><span class="swatch" style="background:#e7dab2"></span></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="notes-block">
+          <div class="notes-head">
+            <h5>● Yorumlar &amp; notlar</h5>
+            <span class="save-indicator" data-for="m04">Kaydedildi ✓</span>
+          </div>
+          <textarea class="notes-area" data-card="m04" placeholder="Bu mailing için yorumlarınızı, revize notlarını, onay durumunu buraya yazın. Otomatik kaydedilir."></textarea>
+        </div>
+      </div>
+    </article>
+
+    <!-- 05 · FUSIONTECH -->
+    <article class="card" id="m05">
+      <div class="stripe"></div>
+      <div class="inner">
+        <div class="card-head">
+          <div class="head-left">
+            <div class="num">Mailing <span class="nb">05 / 11</span></div>
+          </div>
+          <div class="audience">
+            <span class="aud-tag tb"><span class="dot"></span>TR · Bayi</span>
+            <span class="aud-tag tw"><span class="dot"></span>TR · Web</span>
+            <span class="aud-tag gb"><span class="dot"></span>Global · Bayi</span>
+            <span class="aud-tag gw"><span class="dot"></span>Global · Web</span>
+          </div>
+        </div>
+
+        <span class="kicker">FUSIONtech · Premium Porcelain</span>
+        <h2 class="cardtitle">Dünyada bir ilk: aynı tabakta mat ve parlak sırın 3D buluşması</h2>
+        <div class="pre">Yalnızca el işçiliğiyle olabilen yüzey artık seri üretimde.</div>
+
+        <div class="tabs"><button class="tab active" data-lang="tr">TR</button><button class="tab" data-lang="en">EN</button></div>
+
+        <div class="lang-pane active" data-lang="tr">
+          <div class="sec"><h5>Konu satırı</h5><div class="subject-line">Tabakta nerenin parlayacağına biz karar veriyoruz: FUSIONtech</div><div class="preh">Preheader · Aquelis · Kymen · Retro Floral · Granix — dört seri, dört vizyon.</div></div>
+          <div class="sec"><h5>Mail metni</h5>
+            <div class="body">Mat ve parlak sırın aynı porselen yüzeydeki dengeli birleşimi — daha önce yalnızca el işçiliğiyle mümkün olan 3D doku ve ışık oyunları artık Bonna’nın seri üretim disiplinine teslim. FUSIONtech ile üretilen dört seri dört farklı vizyon sunar: <strong>Aquelis</strong> ve <strong>Kymen</strong> marin konseptte, <strong>Retro Floral</strong> estetik-nostalji ekseninde, <strong>Granix</strong> ise mermere ithafen mimari karakterde. Tasarım önde; şefin vizyonu yansıtılır.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">FUSIONtech serilerini keşfet →</a></div>
+        </div>
+
+        <div class="lang-pane" data-lang="en">
+          <div class="sec"><h5>Subject line</h5><div class="subject-line">A world first: matte and gloss on the same plate — meet FUSIONtech</div><div class="preh">Preheader · Aquelis · Kymen · Retro Floral · Granix — four collections, four voices.</div></div>
+          <div class="sec"><h5>Body</h5>
+            <div class="body">Matte and gloss glazes dancing across the same porcelain surface — a finish that used to be possible only by hand, now native to Bonna's serial production. Four collections, four voices: <strong>Aquelis</strong> and <strong>Kymen</strong> take a marine direction, <strong>Retro Floral</strong> leans aesthetic and nostalgic, <strong>Granix</strong> takes an architectural character inspired by marble. Design leads; the chef's vision is reflected.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">Discover the FUSIONtech range →</a></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="sec"><h5>Öne çıkan koleksiyonlar</h5>
+          <div class="col-row"><span class="tag">Aquelis</span><span class="tag">Kymen</span><span class="tag">Retro Floral</span><span class="tag">Granix</span></div>
+          <div class="palette"><span class="swatch" style="background:#1f2a30"></span><span class="swatch" style="background:#cfb89a"></span><span class="swatch" style="background:#7a8896"></span><span class="swatch" style="background:#efe7df"></span></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="notes-block">
+          <div class="notes-head">
+            <h5>● Yorumlar &amp; notlar</h5>
+            <span class="save-indicator" data-for="m05">Kaydedildi ✓</span>
+          </div>
+          <textarea class="notes-area" data-card="m05" placeholder="Bu mailing için yorumlarınızı, revize notlarını, onay durumunu buraya yazın. Otomatik kaydedilir."></textarea>
+        </div>
+      </div>
+    </article>
+
+    <!-- 06 · NRA SHOW 2026 -->
+    <article class="card" id="m06">
+      <div class="stripe"></div>
+      <div class="inner">
+        <div class="card-head">
+          <div class="head-left">
+            <div class="num">Mailing <span class="nb">06 / 11</span> · ETKİNLİK</div>
+          </div>
+          <div class="audience">
+            <span class="aud-tag gb"><span class="dot"></span>Global · Bayi</span>
+            <span class="aud-tag gw"><span class="dot"></span>Global · Web</span>
+            <span style="font-size:11px;color:var(--muted);align-self:center;margin-left:6px">Yalnızca yurtdışı data</span>
+          </div>
+        </div>
+
+        <span class="kicker kg">Etkinlik · NRA Show 2026</span>
+        <h2 class="cardtitle">16–19 Mayıs · Chicago McCormick Place · GTC Stand, Booth 7615</h2>
+        <div class="pre">Save the date · Come plate the future with us.</div>
+
+        <div class="tabs"><button class="tab active" data-lang="en">EN</button><button class="tab" data-lang="tr">TR</button></div>
+
+        <div class="lang-pane active" data-lang="en">
+          <div class="sec"><h5>Subject line</h5><div class="subject-line">We're at NRA Show 2026 — come plate the future with us</div><div class="preh">Preheader · May 16–19 · McCormick Place, Chicago · Booth 7615.</div></div>
+          <div class="sec"><h5>Body</h5>
+            <div class="body">Bonna will be at <strong>NRA Show 2026</strong>, the global meeting point for the foodservice industry. From <strong>May 16 to 19</strong>, the team will be at <strong>GTC Stand, Booth 7615, McCormick Place, Chicago</strong>. Experience FUSIONtech's first-of-its-kind matte-and-gloss dimensional finish, the EPD-certified Premium Vitrified line, and Bonna's full Mix &amp; Match story across one hands-on stand. A direct touchpoint for distributors, chefs and operators planning the next season.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">Book a meeting at Booth 7615 →</a></div>
+        </div>
+
+        <div class="lang-pane" data-lang="tr">
+          <div class="sec"><h5>Konu satırı</h5><div class="subject-line">NRA Show 2026’dayız — geleceği bizimle birlikte tabağa koyun</div><div class="preh">Preheader · 16–19 Mayıs · McCormick Place, Chicago · Booth 7615.</div></div>
+          <div class="sec"><h5>Mail metni</h5>
+            <div class="body">Bonna, küresel foodservice’in buluşma noktası <strong>NRA Show 2026</strong>’da. 16–19 Mayıs tarihleri arasında Chicago McCormick Place’te <strong>GTC standı, Booth 7615</strong>’te bizi ziyaret edin. FUSIONtech’in dünyada bir ilk olan mat-parlak 3D yüzey teknolojisini, EPD sertifikalı Premium Vitrified ailesini ve tüm Bonna Mix &amp; Match hikâyesini canlı deneyimleyin. Yeni sezonu planlayan distribütörler, şefler ve operatörler için doğrudan temas noktası.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">Booth 7615’te randevu al →</a></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="sec"><h5>Vitrin başlıkları</h5>
+          <div class="col-row"><span class="tag">FUSIONtech</span><span class="tag">Premium Vitrified · EPD</span><span class="tag">Mix &amp; Match</span><span class="tag">Halo by Can Yalman</span></div>
+          <div class="palette"><span class="swatch" style="background:#13241f"></span><span class="swatch" style="background:#0e4d4a"></span><span class="swatch" style="background:#b08a4a"></span><span class="swatch" style="background:#e8e2d4"></span></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="notes-block">
+          <div class="notes-head">
+            <h5>● Yorumlar &amp; notlar</h5>
+            <span class="save-indicator" data-for="m06">Kaydedildi ✓</span>
+          </div>
+          <textarea class="notes-area" data-card="m06" placeholder="Bu mailing için yorumlarınızı, revize notlarını, onay durumunu buraya yazın. Otomatik kaydedilir."></textarea>
+        </div>
+      </div>
+    </article>
+
+    <!-- 07 · LIORA -->
+    <article class="card" id="m07">
+      <div class="stripe"></div>
+      <div class="inner">
+        <div class="card-head">
+          <div class="head-left">
+            <div class="num">Mailing <span class="nb">07 / 11</span></div>
+          </div>
+          <div class="audience">
+            <span class="aud-tag tb"><span class="dot"></span>TR · Bayi</span>
+            <span class="aud-tag tw"><span class="dot"></span>TR · Web</span>
+            <span class="aud-tag gb"><span class="dot"></span>Global · Bayi</span>
+            <span class="aud-tag gw"><span class="dot"></span>Global · Web</span>
+          </div>
+        </div>
+
+        <span class="kicker">Liora · Power Glaze</span>
+        <h2 class="cardtitle">Çizilmeye karşı yüksek dayanım, ömür boyu kenar çıtlamazlık</h2>
+        <div class="pre">Yoğun servisin sessiz sigortası — düşen toplam sahip olma maliyeti.</div>
+
+        <div class="tabs"><button class="tab active" data-lang="tr">TR</button><button class="tab" data-lang="en">EN</button></div>
+
+        <div class="lang-pane active" data-lang="tr">
+          <div class="sec"><h5>Konu satırı</h5><div class="subject-line">Liora · Power Glaze: bir yıl sonra da bugünkü kadar yeni</div><div class="preh">Preheader · Çizilmeye, asit ve kimyasallara karşı yüksek dayanım.</div></div>
+          <div class="sec"><h5>Mail metni</h5>
+            <div class="body">Yenileme aralığı uzayan tabak, vitrin görünümü taze kalan menü. Bonna’nın Power Glaze Technology’si Liora serisinde çizilmeye, asit, deterjan ve kimyasallara karşı yüksek dayanım sunarken seçili formlarda <strong>ömür boyu kenar çıtlamazlık</strong> garantisi sağlar. Bazalith ve Tone ailesi ile birlikte, yoğun servis trafiğinin sessiz sigortası — toplam maliyeti düşüren bir Premium Vitrified hattı.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">Dayanıklılık serilerini incele →</a></div>
+        </div>
+
+        <div class="lang-pane" data-lang="en">
+          <div class="sec"><h5>Subject line</h5><div class="subject-line">Liora · Power Glaze: as new a year from now</div><div class="preh">Preheader · High resistance to scratching, acids and chemicals.</div></div>
+          <div class="sec"><h5>Body</h5>
+            <div class="body">A plate that extends its replacement cycle keeps the menu's front-of-house fresh. Bonna's Power Glaze Technology gives Liora high resistance to scratching, acids, detergents and chemicals — with a <strong>lifetime edge-chip warranty</strong> on selected forms. Together with Bazalith and Tone, this is the silent insurance policy of high-volume service: a Premium Vitrified line built to lower operational cost.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">View the durability range →</a></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="sec"><h5>Öne çıkan koleksiyonlar</h5>
+          <div class="col-row"><span class="tag">Liora</span><span class="tag">Bazalith</span><span class="tag">Tone</span><span class="tag">Core</span></div>
+          <div class="palette"><span class="swatch" style="background:#d2c5a4"></span><span class="swatch" style="background:#8c7c5f"></span><span class="swatch" style="background:#3a3a36"></span><span class="swatch" style="background:#efe9d8"></span></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="notes-block">
+          <div class="notes-head">
+            <h5>● Yorumlar &amp; notlar</h5>
+            <span class="save-indicator" data-for="m07">Kaydedildi ✓</span>
+          </div>
+          <textarea class="notes-area" data-card="m07" placeholder="Bu mailing için yorumlarınızı, revize notlarını, onay durumunu buraya yazın. Otomatik kaydedilir."></textarea>
+        </div>
+      </div>
+    </article>
+
+    <!-- 08 · LAVIS & NICOLE -->
+    <article class="card" id="m08">
+      <div class="stripe"></div>
+      <div class="inner">
+        <div class="card-head">
+          <div class="head-left">
+            <div class="num">Mailing <span class="nb">08 / 11</span></div>
+          </div>
+          <div class="audience">
+            <span class="aud-tag tb"><span class="dot"></span>TR · Bayi</span>
+            <span class="aud-tag tw"><span class="dot"></span>TR · Web</span>
+            <span class="aud-tag gb"><span class="dot"></span>Global · Bayi</span>
+            <span class="aud-tag gw"><span class="dot"></span>Global · Web</span>
+          </div>
+        </div>
+
+        <span class="kicker">Lavis &amp; Nicole · Sınırlı Stok</span>
+        <h2 class="cardtitle">Sezonun hızlı tükenen renkleri — yaza renklerle girmek için son hafta</h2>
+        <div class="pre">Lavis Blue · Green · Black ve Nicole, sezonun en hareketli paletleri.</div>
+
+        <div class="tabs"><button class="tab active" data-lang="tr">TR</button><button class="tab" data-lang="en">EN</button></div>
+
+        <div class="lang-pane active" data-lang="tr">
+          <div class="sec"><h5>Konu satırı</h5><div class="subject-line">Lavis ve Nicole: yaza renklerle girmek için sınırlı stok dönemi</div><div class="preh">Preheader · Blue · Green · Black · Nicole — mayısın hızlı paletleri.</div></div>
+          <div class="sec"><h5>Mail metni</h5>
+            <div class="body">Mayıs’ın stoklarda yer değiştiren paletleri tek başlıkta. <strong>Lavis</strong> serisi üç tonla buluşuyor: deniz ürünleri için <em>Blue</em>, mevsim sebzeleri için <em>Green</em>, gece servisinin karakteri için <em>Black</em>. <strong>Nicole</strong> ise ince kenar çizgisi ve modern silüetiyle fine casual menülerin tatlı ve atıştırmalık formlarını taşır. Sınırlı stok dönemi — yaza renklerle girmek için bu ay sipariş avantajlı.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">Renkleri görüntüle →</a></div>
+        </div>
+
+        <div class="lang-pane" data-lang="en">
+          <div class="sec"><h5>Subject line</h5><div class="subject-line">Lavis &amp; Nicole: limited-stock window before the season opens</div><div class="preh">Preheader · Blue · Green · Black · Nicole — May's fastest-moving palettes.</div></div>
+          <div class="sec"><h5>Body</h5>
+            <div class="body">May's most active palettes in one dispatch. The <strong>Lavis</strong> range comes in three tones — <em>Blue</em> for seafood and cocktails, <em>Green</em> for vegetable-led plates, <em>Black</em> for the character of evening service. <strong>Nicole</strong> brings a fine edge line and modern silhouette to dessert and small-plate formats. Limited-stock window — ordering this month means entering summer in the right colors.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">View the palettes →</a></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="sec"><h5>Öne çıkan koleksiyonlar</h5>
+          <div class="col-row"><span class="tag">Lavis Blue</span><span class="tag">Lavis Green</span><span class="tag">Lavis Black</span><span class="tag">Nicole</span></div>
+          <div class="palette"><span class="swatch" style="background:#2f4a6a"></span><span class="swatch" style="background:#6d8a4e"></span><span class="swatch" style="background:#1a1a1a"></span><span class="swatch" style="background:#e6dccd"></span></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="notes-block">
+          <div class="notes-head">
+            <h5>● Yorumlar &amp; notlar</h5>
+            <span class="save-indicator" data-for="m08">Kaydedildi ✓</span>
+          </div>
+          <textarea class="notes-area" data-card="m08" placeholder="Bu mailing için yorumlarınızı, revize notlarını, onay durumunu buraya yazın. Otomatik kaydedilir."></textarea>
+        </div>
+      </div>
+    </article>
+
+    <!-- 09 · CLAIR + CORE -->
+    <article class="card" id="m09">
+      <div class="stripe"></div>
+      <div class="inner">
+        <div class="card-head">
+          <div class="head-left">
+            <div class="num">Mailing <span class="nb">09 / 11</span></div>
+          </div>
+          <div class="audience">
+            <span class="aud-tag tb"><span class="dot"></span>TR · Bayi</span>
+            <span class="aud-tag tw"><span class="dot"></span>TR · Web</span>
+            <span class="aud-tag gb"><span class="dot"></span>Global · Bayi</span>
+            <span class="aud-tag gw"><span class="dot"></span>Global · Web</span>
+          </div>
+        </div>
+
+        <span class="kicker">Yeni Clair · Mayıs Core Seçkisi</span>
+        <h2 class="cardtitle">Specialty kafeler için yeni Clair ve Mayıs’ın Core fincan grubu</h2>
+        <div class="pre">İki başlık, tek sabah ritüeli — Bonna’dan kahve servisi seçkisi.</div>
+
+        <div class="tabs"><button class="tab active" data-lang="tr">TR</button><button class="tab" data-lang="en">EN</button></div>
+
+        <div class="lang-pane active" data-lang="tr">
+          <div class="sec"><h5>Konu satırı</h5><div class="subject-line">Yeni Clair ve Mayıs’ın Core fincan seçkisi</div><div class="preh">Preheader · Specialty kafeler için sabah ritüelinin iki ana karakteri.</div></div>
+          <div class="sec"><h5>Mail metni</h5>
+            <div class="body">Bir kafenin marka deneyimi ilk fincandan başlar. Bonna ailesinin yeni üyesi <strong>Clair</strong>, ince ve yumuşak silüetiyle specialty kafelerin brunch sunumlarına özel bir karakter taşır. Mayıs’ın <strong>Core fincan seçkisi</strong> ise çekirdek koleksiyonun en çok tercih edilen kupa ve espresso grubunu öne çıkarır — stok devamlılığı yüksek, tüm Bonna serileriyle uyumlu.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">Clair’i tanı · Core’u keşfet →</a></div>
+        </div>
+
+        <div class="lang-pane" data-lang="en">
+          <div class="sec"><h5>Subject line</h5><div class="subject-line">Introducing Clair and May's Core cup selection</div><div class="preh">Preheader · The two anchors of the specialty café morning ritual.</div></div>
+          <div class="sec"><h5>Body</h5>
+            <div class="body">A café's brand experience starts with the first cup. <strong>Clair</strong>, the newest member of the Bonna family, brings a delicate, gentle silhouette built for specialty café brunch service. This month's <strong>Core cup selection</strong> highlights the most-ordered mug and espresso group from the core line — consistently in stock, fully compatible with every Bonna collection.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">Meet Clair · explore Core →</a></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="sec"><h5>Öne çıkan koleksiyonlar</h5>
+          <div class="col-row"><span class="tag">Clair</span><span class="tag">Core (Mayıs grubu)</span><span class="tag">Tone</span><span class="tag">Bazalith kahve seçkisi</span></div>
+          <div class="palette"><span class="swatch" style="background:#d9c5a7"></span><span class="swatch" style="background:#7a5a40"></span><span class="swatch" style="background:#f0e6d0"></span><span class="swatch" style="background:#3a2a20"></span></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="notes-block">
+          <div class="notes-head">
+            <h5>● Yorumlar &amp; notlar</h5>
+            <span class="save-indicator" data-for="m09">Kaydedildi ✓</span>
+          </div>
+          <textarea class="notes-area" data-card="m09" placeholder="Bu mailing için yorumlarınızı, revize notlarını, onay durumunu buraya yazın. Otomatik kaydedilir."></textarea>
+        </div>
+      </div>
+    </article>
+
+    <!-- 10 · MOSS & HALO -->
+    <article class="card" id="m10">
+      <div class="stripe"></div>
+      <div class="inner">
+        <div class="card-head">
+          <div class="head-left">
+            <div class="num">Mailing <span class="nb">10 / 11</span></div>
+          </div>
+          <div class="audience">
+            <span class="aud-tag tb"><span class="dot"></span>TR · Bayi</span>
+            <span class="aud-tag tw"><span class="dot"></span>TR · Web</span>
+            <span class="aud-tag gb"><span class="dot"></span>Global · Bayi</span>
+            <span class="aud-tag gw"><span class="dot"></span>Global · Web</span>
+          </div>
+        </div>
+
+        <span class="kicker">Moss &amp; Halo · Portföy Hatırlatması</span>
+        <h2 class="cardtitle">Moss kaseler ve Halo oval kayık formları — portföyün zarif detayları</h2>
+        <div class="pre">Yeni bir koleksiyona yatırım yapmadan menüye nefes katmanın yolu.</div>
+
+        <div class="tabs"><button class="tab active" data-lang="tr">TR</button><button class="tab" data-lang="en">EN</button></div>
+
+        <div class="lang-pane active" data-lang="tr">
+          <div class="sec"><h5>Konu satırı</h5><div class="subject-line">Moss kaseler ve Halo oval kayık formları — portföyün zarif detayları</div><div class="preh">Preheader · Yeni koleksiyon almadan menüye nefes katmanın yolu.</div></div>
+          <div class="sec"><h5>Mail metni</h5>
+            <div class="body">Geniş portföyde bazen tam ihtiyaç duyulan parça gözden kaçar. <strong>Moss kaseler</strong> doğal ton geçişleriyle çorba, salata ve garnitür porsiyonlarına organik bir sahne kurar. <strong>Halo oval kayık formlar</strong> ise mezeden ana yemeğe geçişte uzun masaya ritm katar. Mevcut sunum hattınıza eklendiğinde menüye yeni bir nefes getirir.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">Moss ve Halo formlarını incele →</a></div>
+        </div>
+
+        <div class="lang-pane" data-lang="en">
+          <div class="sec"><h5>Subject line</h5><div class="subject-line">Moss bowls and Halo oval boat plates — the portfolio's quiet details</div><div class="preh">Preheader · Refresh the menu without investing in a new collection.</div></div>
+          <div class="sec"><h5>Body</h5>
+            <div class="body">Across a wide portfolio, the exact piece needed sometimes gets overlooked. <strong>Moss bowls</strong> bring an organic stage to soups, salads and side servings with natural tonal gradients. <strong>Halo oval boat plates</strong> add rhythm to long tables, easing the transition from meze to main. Added to your existing line, they bring fresh air to the menu without a new investment.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">View Moss and Halo →</a></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="sec"><h5>Öne çıkan koleksiyonlar</h5>
+          <div class="col-row"><span class="tag">Moss kaseler</span><span class="tag">Halo oval kayık</span><span class="tag">Halo Ocean</span><span class="tag">Gaia</span></div>
+          <div class="palette"><span class="swatch" style="background:#7a8867"></span><span class="swatch" style="background:#b9c2a3"></span><span class="swatch" style="background:#3e463a"></span><span class="swatch" style="background:#e9e3d2"></span></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="notes-block">
+          <div class="notes-head">
+            <h5>● Yorumlar &amp; notlar</h5>
+            <span class="save-indicator" data-for="m10">Kaydedildi ✓</span>
+          </div>
+          <textarea class="notes-area" data-card="m10" placeholder="Bu mailing için yorumlarınızı, revize notlarını, onay durumunu buraya yazın. Otomatik kaydedilir."></textarea>
+        </div>
+      </div>
+    </article>
+
+    <!-- 11 · MIX & MATCH -->
+    <article class="card" id="m11">
+      <div class="stripe"></div>
+      <div class="inner">
+        <div class="card-head">
+          <div class="head-left">
+            <div class="num">Mailing <span class="nb">11 / 11</span></div>
+          </div>
+          <div class="audience">
+            <span class="aud-tag tb"><span class="dot"></span>TR · Bayi</span>
+            <span class="aud-tag tw"><span class="dot"></span>TR · Web</span>
+            <span class="aud-tag gb"><span class="dot"></span>Global · Bayi</span>
+            <span class="aud-tag gw"><span class="dot"></span>Global · Web</span>
+          </div>
+        </div>
+
+        <span class="kicker">Mix &amp; Match · Şefin Vizyonu</span>
+        <h2 class="cardtitle">Şefin vizyonunu yansıtan 7 koleksiyon, tek mix &amp; match menü</h2>
+        <div class="pre">Graphite, Snell, Sage, Gaia, Sapphire, Infinityglass, Nox &amp; Bakır Solida.</div>
+
+        <div class="tabs"><button class="tab active" data-lang="tr">TR</button><button class="tab" data-lang="en">EN</button></div>
+
+        <div class="lang-pane active" data-lang="tr">
+          <div class="sec"><h5>Konu satırı</h5><div class="subject-line">Şefin vizyonu: yedi karakter, tek mix &amp; match menü</div><div class="preh">Preheader · Graphite · Snell · Sage · Gaia · Sapphire · Infinityglass · Nox.</div></div>
+          <div class="sec"><h5>Mail metni</h5>
+            <div class="body">Bir menü kimliği yüzeyden başlar. Bu mailing’de Bonna’nın az bilinen ama karakter yüklü yedi üyesi tek bir sahnede buluşuyor: <em>Graphite</em>’in mineral dokusu, <em>Snell</em>’in nötr zarafeti, <em>Sage</em>’in adaçayı yeşili, <em>Gaia</em>’nın toprak tonları, <em>Sapphire</em>’ın derin mavisi, <em>Infinityglass</em>’ın hafifliği, <em>Nox &amp; Bakır Solida</em>’nın sıcak gece karakteri. Yeni baştan satın almak için değil, mevcut masaya nefes katmak için.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">Mix &amp; Match kreatifini incele →</a></div>
+        </div>
+
+        <div class="lang-pane" data-lang="en">
+          <div class="sec"><h5>Subject line</h5><div class="subject-line">Chef's vision: seven characters, one mix &amp; match menu</div><div class="preh">Preheader · Graphite · Snell · Sage · Gaia · Sapphire · Infinityglass · Nox.</div></div>
+          <div class="sec"><h5>Body</h5>
+            <div class="body">Menu identity begins with surface. Seven lesser-known but character-rich members of the Bonna family come together in a single mix-and-match scene: the mineral texture of <em>Graphite</em>, the quiet elegance of <em>Snell</em>, the sage green of <em>Sage</em>, the earth tones of <em>Gaia</em>, the deep blue of <em>Sapphire</em>, the lightness of <em>Infinityglass</em>, and the warm evening character of <em>Nox &amp; Copper Solida</em>. Not a restart — a refresh.</div>
+          </div>
+          <div class="sec"><h5>CTA</h5><a class="cta" href="#">View the Mix &amp; Match creative →</a></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="sec"><h5>Öne çıkan koleksiyonlar</h5>
+          <div class="col-row"><span class="tag">Graphite</span><span class="tag">Snell</span><span class="tag">Sage</span><span class="tag">Gaia</span><span class="tag">Sapphire</span><span class="tag">Infinityglass</span><span class="tag">Nox</span><span class="tag">Bakır Solida</span></div>
+          <div class="palette"><span class="swatch" style="background:#2a2d31"></span><span class="swatch" style="background:#cfb89a"></span><span class="swatch" style="background:#7a8a6a"></span><span class="swatch" style="background:#a96544"></span><span class="swatch" style="background:#2f4a6a"></span><span class="swatch" style="background:#e6e1d8"></span></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="notes-block">
+          <div class="notes-head">
+            <h5>● Yorumlar &amp; notlar</h5>
+            <span class="save-indicator" data-for="m11">Kaydedildi ✓</span>
+          </div>
+          <textarea class="notes-area" data-card="m11" placeholder="Bu mailing için yorumlarınızı, revize notlarını, onay durumunu buraya yazın. Otomatik kaydedilir."></textarea>
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+  <footer>
+    Bonna · Mayıs 2026 Mailing Planı · AfterFAANG · 11 mailing · TR/EN · HoReCa
+  </footer>
+</div>
+
+<script>
+  // ----- Language tabs -----
+  document.querySelectorAll('.card').forEach(card => {
+    const tabs = card.querySelectorAll('.tab');
+    const panes = card.querySelectorAll('.lang-pane');
+    tabs.forEach(t => t.addEventListener('click', () => {
+      if (t.disabled) return;
+      tabs.forEach(x => x.classList.remove('active'));
+      panes.forEach(p => p.classList.remove('active'));
+      t.classList.add('active');
+      const target = card.querySelector('.lang-pane[data-lang="' + t.dataset.lang + '"]');
+      if (target) target.classList.add('active');
+    }));
+  });
+
+  // ----- Notes: load, autosave, export, import, clear -----
+  const STORAGE_KEY = 'bonna-mailing-notes-v1';
+  const loadNotes = () => {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+    catch { return {}; }
+  };
+  const saveNotes = (data) => localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  let notes = loadNotes();
+
+  document.querySelectorAll('.notes-area').forEach(area => {
+    const cardId = area.dataset.card;
+    if (notes[cardId]) area.value = notes[cardId];
+    let timer;
+    area.addEventListener('input', () => {
+      clearTimeout(timer);
+      notes[cardId] = area.value;
+      timer = setTimeout(() => {
+        saveNotes(notes);
+        const ind = document.querySelector('.save-indicator[data-for="' + cardId + '"]');
+        if (ind) {
+          ind.classList.add('show');
+          setTimeout(() => ind.classList.remove('show'), 1200);
+        }
+      }, 350);
+    });
+  });
+
+  // Export
+  document.getElementById('exportNotes').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(notes, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const ts = new Date().toISOString().slice(0,10);
+    a.href = url; a.download = `bonna-mailing-notlari-${ts}.json`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  // Import
+  document.getElementById('importNotesBtn').addEventListener('click', () =>
+    document.getElementById('importNotesFile').click()
+  );
+  document.getElementById('importNotesFile').addEventListener('change', (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const incoming = JSON.parse(reader.result);
+        notes = { ...notes, ...incoming };
+        saveNotes(notes);
+        document.querySelectorAll('.notes-area').forEach(area => {
+          if (notes[area.dataset.card]) area.value = notes[area.dataset.card];
+        });
+        alert('Notlar içe aktarıldı.');
+      } catch (err) { alert('Geçerli bir JSON dosyası değil.'); }
+    };
+    reader.readAsText(file);
+  });
+
+  // Clear
+  document.getElementById('clearNotes').addEventListener('click', () => {
+    if (!confirm('Tüm yorumları silmek istediğinize emin misiniz?')) return;
+    notes = {};
+    saveNotes(notes);
+    document.querySelectorAll('.notes-area').forEach(a => a.value = '');
+  });
+</script>
+</body>
+</html>
