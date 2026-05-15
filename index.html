@@ -799,34 +799,100 @@
     }));
   });
 
-  // ----- Notes: load, autosave, export, import, clear -----
-  const STORAGE_KEY = 'bonna-mailing-notes-v1';
-  const loadNotes = () => {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
-    catch { return {}; }
-  };
-  const saveNotes = (data) => localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  let notes = loadNotes();
+  // ----- Shared notes (server-backed via Postgres) -----
+  const API = '/api/notes';
+  const FALLBACK_KEY = 'bonna-mailing-notes-v1';
+  let notes = {};      // current state from server
+  let dbAvailable = true;
 
+  const showIndicator = (cardId, text, ok = true) => {
+    const ind = document.querySelector('.save-indicator[data-for="' + cardId + '"]');
+    if (!ind) return;
+    ind.textContent = text;
+    ind.style.color = ok ? '' : '#b53a2d';
+    ind.classList.add('show');
+    clearTimeout(ind._t);
+    ind._t = setTimeout(() => ind.classList.remove('show'), 1400);
+  };
+
+  async function fetchAllNotes() {
+    try {
+      const r = await fetch(API, { cache: 'no-store' });
+      if (r.status === 503) { dbAvailable = false; return {}; }
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      dbAvailable = true;
+      return await r.json();
+    } catch (e) {
+      dbAvailable = false;
+      try { return JSON.parse(localStorage.getItem(FALLBACK_KEY) || '{}'); }
+      catch { return {}; }
+    }
+  }
+
+  async function saveNote(cardId, content) {
+    if (!dbAvailable) {
+      // local fallback only
+      const fb = JSON.parse(localStorage.getItem(FALLBACK_KEY) || '{}');
+      fb[cardId] = content;
+      localStorage.setItem(FALLBACK_KEY, JSON.stringify(fb));
+      showIndicator(cardId, 'Yerel kaydedildi (DB yok)', false);
+      return;
+    }
+    try {
+      const r = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mailing_id: cardId, content })
+      });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      notes[cardId] = content;
+      showIndicator(cardId, 'Paylaşıldı ✓', true);
+    } catch (e) {
+      showIndicator(cardId, 'Kaydedilemedi', false);
+    }
+  }
+
+  // Populate textareas from server
+  function populateAreas() {
+    document.querySelectorAll('.notes-area').forEach(area => {
+      const cardId = area.dataset.card;
+      if (document.activeElement === area) return; // don't overwrite while user types
+      area.value = notes[cardId] || '';
+    });
+  }
+
+  // Wire up textareas with debounced save
   document.querySelectorAll('.notes-area').forEach(area => {
     const cardId = area.dataset.card;
-    if (notes[cardId]) area.value = notes[cardId];
     let timer;
     area.addEventListener('input', () => {
       clearTimeout(timer);
-      notes[cardId] = area.value;
-      timer = setTimeout(() => {
-        saveNotes(notes);
-        const ind = document.querySelector('.save-indicator[data-for="' + cardId + '"]');
-        if (ind) {
-          ind.classList.add('show');
-          setTimeout(() => ind.classList.remove('show'), 1200);
-        }
-      }, 350);
+      timer = setTimeout(() => saveNote(cardId, area.value), 500);
     });
   });
 
-  // Export
+  // Initial load + periodic refresh so multiple users see each other
+  (async function init() {
+    notes = await fetchAllNotes();
+    populateAreas();
+    if (!dbAvailable) {
+      document.querySelectorAll('.save-indicator').forEach(s => {
+        s.textContent = 'DB bağlı değil';
+        s.style.color = '#b53a2d';
+        s.classList.add('show');
+      });
+    }
+  })();
+
+  // Refresh from server every 15s (so other users' edits show up)
+  setInterval(async () => {
+    if (!dbAvailable) return;
+    const fresh = await fetchAllNotes();
+    notes = fresh;
+    populateAreas();
+  }, 15000);
+
+  // Export — downloads current server state as JSON
   document.getElementById('exportNotes').addEventListener('click', () => {
     const blob = new Blob([JSON.stringify(notes, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -837,33 +903,37 @@
     URL.revokeObjectURL(url);
   });
 
-  // Import
+  // Import — POSTs each note to server
   document.getElementById('importNotesBtn').addEventListener('click', () =>
     document.getElementById('importNotesFile').click()
   );
   document.getElementById('importNotesFile').addEventListener('change', (e) => {
     const file = e.target.files[0]; if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       try {
         const incoming = JSON.parse(reader.result);
-        notes = { ...notes, ...incoming };
-        saveNotes(notes);
-        document.querySelectorAll('.notes-area').forEach(area => {
-          if (notes[area.dataset.card]) area.value = notes[area.dataset.card];
-        });
-        alert('Notlar içe aktarıldı.');
+        const ids = Object.keys(incoming);
+        for (const id of ids) {
+          await saveNote(id, incoming[id]);
+        }
+        notes = await fetchAllNotes();
+        populateAreas();
+        alert('Notlar içe aktarıldı (' + ids.length + ' adet).');
       } catch (err) { alert('Geçerli bir JSON dosyası değil.'); }
     };
     reader.readAsText(file);
   });
 
-  // Clear
-  document.getElementById('clearNotes').addEventListener('click', () => {
-    if (!confirm('Tüm yorumları silmek istediğinize emin misiniz?')) return;
-    notes = {};
-    saveNotes(notes);
-    document.querySelectorAll('.notes-area').forEach(a => a.value = '');
+  // Clear — wipes server state (asks for confirmation)
+  document.getElementById('clearNotes').addEventListener('click', async () => {
+    if (!confirm('Tüm yorumları sunucudan silmek istediğinize emin misiniz?')) return;
+    try {
+      const r = await fetch(API + '/clear', { method: 'POST' });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      notes = {};
+      document.querySelectorAll('.notes-area').forEach(a => a.value = '');
+    } catch (e) { alert('Silinemedi: ' + e.message); }
   });
 </script>
 </body>
