@@ -9,12 +9,27 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json({ limit: '1mb' }));
 
 // ----- Postgres -----
-const pool = process.env.DATABASE_URL
+// Railway's internal DATABASE_URL (postgres.railway.internal) does not use SSL;
+// external/public URLs do. Enable SSL only when not an internal host.
+const dbUrl = process.env.DATABASE_URL || '';
+const isInternal = dbUrl.includes('.railway.internal');
+const pool = dbUrl
   ? new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false }
+      connectionString: dbUrl,
+      ssl: isInternal ? false : { rejectUnauthorized: false },
+      max: 5,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000
     })
   : null;
+
+// CRITICAL: without this handler, an idle-client error crashes the process
+// ("Application failed to respond" on Railway).
+if (pool) {
+  pool.on('error', (err) => {
+    console.error('[bonna] idle pg client error (handled):', err.message);
+  });
+}
 
 async function initDb() {
   if (!pool) {
@@ -31,9 +46,13 @@ async function initDb() {
     `);
     console.log('[bonna] notes table ready.');
   } catch (e) {
-    console.error('[bonna] DB init failed:', e.message);
+    console.error('[bonna] DB init failed (will retry on first request):', e.message);
   }
 }
+
+// Last-resort guards so the web server never dies on an unexpected async error
+process.on('unhandledRejection', (e) => console.error('[bonna] unhandledRejection:', e));
+process.on('uncaughtException', (e) => console.error('[bonna] uncaughtException:', e));
 
 // ----- API -----
 app.get('/api/health', (_req, res) => res.json({ ok: true, db: !!pool }));
